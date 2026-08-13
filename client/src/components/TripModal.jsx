@@ -9,6 +9,7 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
     endDate: initialData?.endDate ? initialData.endDate.split('T')[0] : '',
     description: initialData?.description || '',
     rating: initialData?.rating || 5,
+    coverImage: initialData?.coverImage || '',
   }));
 
   const [locationError, setLocationError] = useState('');
@@ -27,6 +28,7 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
       endDate: initialData?.endDate ? initialData.endDate.split('T')[0] : '',
       description: initialData?.description || '',
       rating: initialData?.rating || 5,
+      coverImage: initialData?.coverImage || '',
     });
     setImageFile(null);
     setImagePreview(initialData?.coverImage || '');

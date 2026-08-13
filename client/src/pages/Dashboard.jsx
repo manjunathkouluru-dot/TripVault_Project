@@ -146,28 +146,35 @@ export default function Dashboard() {
         targetTripId = res.data._id;
       }
 
-      // If user selected an image file, upload it directly to Cloudinary
+      // If user selected an image file, attempt uploading to Cloudinary
       if (imageFile && targetTripId) {
-        const uploadData = new FormData();
-        uploadData.append('image', imageFile);
-        const token = localStorage.getItem('token');
-        await axios.post(
-          `http://localhost:5000/api/trips/${targetTripId}/upload`,
-          uploadData,
-          {
-            headers: {
-              'Content-Type': 'multipart/form-data',
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+        try {
+          const uploadData = new FormData();
+          uploadData.append('image', imageFile);
+          const token = localStorage.getItem('token');
+          await axios.post(
+            `http://localhost:5000/api/trips/${targetTripId}/upload`,
+            uploadData,
+            {
+              headers: {
+                'Content-Type': 'multipart/form-data',
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+        } catch (uploadErr) {
+          console.error('Photo upload error:', uploadErr);
+          alert('Trip created successfully! (Note: Cloudinary photo upload failed - check API credentials in server/.env)');
+        }
       }
 
       setIsModalOpen(false);
       setSelectedTrip(null);
       fetchTrips();
     } catch (err) {
-      alert(err.response?.data?.message || 'Error saving trip.');
+      console.error('Error saving trip:', err);
+      const errMsg = err.response?.data?.message || err.message || 'Error saving trip.';
+      alert(`Could not save trip: ${errMsg}`);
     }
   };
 
