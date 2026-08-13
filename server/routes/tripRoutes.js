@@ -3,12 +3,13 @@ const router = express.Router();
 const Trip = require('../models/Trip');
 // If your file is named authMiddleware.js:
 const auth = require('../middleware/authMiddleware'); // Your JWT auth middleware
+const upload = require('../middleware/upload');
 
 // @route   POST /api/trips
 // @desc    Create a new trip (Authenticated user only)
 router.post('/', auth, async (req, res) => {
   try {
-    const { title, destination, startDate, endDate, description, rating } = req.body;
+    const { title, destination, startDate, endDate, description, rating, coverImage, photos } = req.body;
 
     const trip = new Trip({
       title,
@@ -17,6 +18,8 @@ router.post('/', auth, async (req, res) => {
       endDate,
       description,
       rating,
+      coverImage: coverImage || '',
+      photos: Array.isArray(photos) ? photos : [],
       user: req.user.id
     });
 
@@ -25,6 +28,45 @@ router.post('/', auth, async (req, res) => {
   } catch (err) {
     console.error('Error creating trip:', err);
     res.status(500).json({ message: 'Server error while creating trip.' });
+  }
+});
+
+// @route   POST /api/trips/:id/upload
+// @desc    Upload an image for a specific trip (Owner only)
+router.post('/:id/upload', auth, upload.single('image'), async (req, res) => {
+  try {
+    const trip = await Trip.findById(req.params.id);
+
+    if (!trip) {
+      return res.status(404).json({ message: 'Trip not found.' });
+    }
+
+    // Verify Ownership
+    if (trip.user.toString() !== req.user.id) {
+      return res.status(403).json({ message: 'Not authorized to modify this trip.' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please upload an image file.' });
+    }
+
+    const imageUrl = req.file.path; // Cloudinary CDN URL
+
+    // Set as cover image if none exists
+    if (!trip.coverImage) {
+      trip.coverImage = imageUrl;
+    }
+
+    if (!trip.photos) {
+      trip.photos = [];
+    }
+    trip.photos.push(imageUrl);
+
+    await trip.save();
+    res.status(200).json({ message: 'Photo uploaded successfully', trip });
+  } catch (err) {
+    console.error('Error uploading photo:', err);
+    res.status(500).json({ message: 'Server upload error', error: err.message });
   }
 });
 

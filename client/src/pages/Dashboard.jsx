@@ -137,21 +137,44 @@ export default function Dashboard() {
   // CREATE OR UPDATE TRIP (POST / PUT)
   const handleFormSubmit = async (formData) => {
     try {
+      const { imageFile, ...tripPayload } = formData;
+      let targetTripId = selectedTrip?._id;
+
       if (selectedTrip) {
         // Edit Trip
-        await axios.put(
+        const res = await axios.put(
           `http://localhost:5000/api/trips/${selectedTrip._id}`,
-          formData,
+          tripPayload,
           getAuthConfig()
         );
+        targetTripId = res.data._id;
       } else {
         // Create Trip
-        await axios.post(
+        const res = await axios.post(
           'http://localhost:5000/api/trips',
-          formData,
+          tripPayload,
           getAuthConfig()
         );
+        targetTripId = res.data._id;
       }
+
+      // If user selected an image file, upload it directly to Cloudinary
+      if (imageFile && targetTripId) {
+        const uploadData = new FormData();
+        uploadData.append('image', imageFile);
+        const token = localStorage.getItem('token');
+        await axios.post(
+          `http://localhost:5000/api/trips/${targetTripId}/upload`,
+          uploadData,
+          {
+            headers: {
+              'Content-Type': 'multipart/form-data',
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
       setIsModalOpen(false);
       setSelectedTrip(null);
       fetchTrips();

@@ -1,3 +1,5 @@
+import { Link } from 'react-router-dom';
+
 export default function TripCard({ trip, onEdit, onDelete }) {
   // Default fallback image if trip.coverImage is missing or empty
   const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&auto=format&fit=crop';
@@ -47,9 +49,9 @@ export default function TripCard({ trip, onEdit, onDelete }) {
         {/* 2. Photo Gallery Grid (renders if trip.photos has items) */}
         {trip.photos && trip.photos.length > 0 && (
           <div style={styles.galleryContainer}>
-            <p style={styles.galleryTitle}>📸 Photo Gallery</p>
+            <p style={styles.galleryTitle}>📸 Photo Gallery ({trip.photos.length})</p>
             <div style={styles.photoGrid}>
-              {trip.photos.map((photoUrl, index) => (
+              {trip.photos.slice(0, 4).map((photoUrl, index) => (
                 <img 
                   key={index} 
                   src={photoUrl} 
@@ -62,6 +64,9 @@ export default function TripCard({ trip, onEdit, onDelete }) {
         )}
 
         <div style={styles.actionRow}>
+          <Link to={`/trips/${trip._id}`} style={styles.viewBtn}>
+            🔍 Details & Photos
+          </Link>
           <button onClick={() => onEdit(trip)} style={styles.editBtn}>
             ✏️ Edit
           </button>
@@ -162,8 +167,21 @@ const styles = {
   },
   actionRow: {
     display: 'flex',
-    gap: '10px',
+    gap: '8px',
     marginTop: 'auto',
+    flexWrap: 'wrap',
+  },
+  viewBtn: {
+    flex: '1 1 100%',
+    backgroundColor: '#007bff',
+    color: '#ffffff',
+    textDecoration: 'none',
+    textAlign: 'center',
+    padding: '8px 12px',
+    borderRadius: '6px',
+    fontWeight: 'bold',
+    fontSize: '13px',
+    display: 'block',
   },
   editBtn: {
     flex: 1,

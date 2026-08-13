@@ -3,6 +3,7 @@ import Login from './pages/Login';
 import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import PublicProfilePage from './pages/PublicProfilePage';
+import TripDetail from './pages/TripDetail';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
@@ -16,7 +17,7 @@ function App() {
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
 
-        {/* Protected Dashboard */}
+        {/* Protected Routes */}
         <Route 
           path="/dashboard" 
           element={
@@ -26,10 +27,18 @@ function App() {
           } 
         />
 
+        <Route 
+          path="/trips/:id" 
+          element={
+            <ProtectedRoute>
+              <TripDetail />
+            </ProtectedRoute>
+          } 
+        />
+
         {/* Public Profile - No Auth Required */}
         <Route path="/profile/:username" element={<PublicProfilePage />} />
         <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
-<Route path="/profile/:username" element={<PublicProfilePage />} />
       </Routes>
     </BrowserRouter>
   );

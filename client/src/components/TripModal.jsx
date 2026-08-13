@@ -30,6 +30,17 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
 
   if (!isOpen) return null;
 
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.coverImage || '');
+
+  const handleImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file));
+    }
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLocationError('');
@@ -50,11 +61,11 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
         return; // Prevent form submission
       }
 
-      // Valid location -> proceed to submission
-      onSubmit(formData);
+      // Valid location -> proceed to submission including imageFile
+      onSubmit({ ...formData, imageFile });
     } catch {
       // Fallback if network issue
-      onSubmit(formData);
+      onSubmit({ ...formData, imageFile });
     } finally {
       setIsValidating(false);
     }
@@ -148,6 +159,25 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               <option value={2}>⭐⭐ (2/5)</option>
               <option value={1}>⭐ (1/5)</option>
             </select>
+          </div>
+
+          <div style={styles.inputGroup}>
+            <label style={styles.label}>Cover Photo Upload (Cloudinary)</label>
+            <input
+              type="file"
+              accept="image/*"
+              onChange={handleImageChange}
+              style={styles.input}
+            />
+            {imagePreview && (
+              <div style={{ marginTop: '6px' }}>
+                <img
+                  src={imagePreview}
+                  alt="Selected Preview"
+                  style={{ width: '80px', height: '80px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #00f2fe' }}
+                />
+              </div>
+            )}
           </div>
 
           <div style={styles.inputGroup}>
