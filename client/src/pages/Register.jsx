@@ -12,7 +12,7 @@ export default function Register() {
   // Simple password strength calculator
   const getPasswordStrength = (pass) => {
     if (!pass) return { label: '', color: 'transparent', width: '0%' };
-    if (pass.length < 6) return { label: 'Weak (min 6 chars)', color: '#ef4444', width: '33%' };
+    if (pass.length < 6) return { label: 'Weak (min 6 chars)', color: '#f43f5e', width: '33%' };
     if (pass.length < 10) return { label: 'Medium', color: '#f59e0b', width: '66%' };
     return { label: 'Strong', color: '#10b981', width: '100%' };
   };
@@ -152,26 +152,26 @@ export default function Register() {
   );
 }
 
-// Inline Styles Object matching the Login design
+// Inline Styles Object
 const styles = {
   pageContainer: {
     fontFamily: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
-    backgroundColor: '#0f172a',
+    backgroundColor: '#0b1329',
     minHeight: '100vh',
     display: 'flex',
     justifyContent: 'center',
     alignItems: 'center',
     padding: '20px',
-    background: 'radial-gradient(circle at top right, #1e1b4b, #0f172a)',
+    background: 'radial-gradient(circle at top left, #1a233a, #0b1329)',
   },
   card: {
-    backgroundColor: '#1e293b',
-    border: '1px solid #334155',
+    backgroundColor: '#152238',
+    border: '1px solid #1e3a5f',
     borderRadius: '16px',
     padding: '36px',
     width: '100%',
     maxWidth: '420px',
-    boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.5), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
+    boxShadow: '0 20px 30px -10px rgba(0, 242, 254, 0.1)',
   },
   brandHeader: {
     textAlign: 'center',
@@ -186,7 +186,7 @@ const styles = {
     margin: '0',
     fontSize: '28px',
     fontWeight: 'bold',
-    background: 'linear-gradient(135deg, #38bdf8, #818cf8)',
+    background: 'linear-gradient(135deg, #4facfe, #00f2fe)', // Cyan electric gradient
     WebkitBackgroundClip: 'text',
     WebkitTextFillColor: 'transparent',
   },
@@ -196,9 +196,9 @@ const styles = {
     fontSize: '14px',
   },
   errorAlert: {
-    backgroundColor: 'rgba(239, 68, 68, 0.1)',
-    border: '1px solid #ef4444',
-    color: '#f87171',
+    backgroundColor: 'rgba(244, 63, 94, 0.15)',
+    border: '1px solid #f43f5e',
+    color: '#fb7185',
     padding: '12px',
     borderRadius: '8px',
     fontSize: '14px',
@@ -218,7 +218,7 @@ const styles = {
   label: {
     fontSize: '13px',
     fontWeight: '600',
-    color: '#cbd5e1',
+    color: '#00f2fe',
   },
   passwordWrapper: {
     position: 'relative',
@@ -229,8 +229,8 @@ const styles = {
     width: '100%',
     padding: '12px 14px',
     borderRadius: '8px',
-    border: '1px solid #334155',
-    backgroundColor: '#0f172a',
+    border: '1px solid #1e3a5f',
+    backgroundColor: '#0a1120',
     color: '#ffffff',
     fontSize: '15px',
     boxSizing: 'border-box',
@@ -241,7 +241,7 @@ const styles = {
     right: '10px',
     background: 'none',
     border: 'none',
-    color: '#94a3b8',
+    color: '#38bdf8',
     fontSize: '12px',
     cursor: 'pointer',
     padding: '4px 8px',
@@ -255,7 +255,7 @@ const styles = {
   strengthBarBg: {
     flex: 1,
     height: '4px',
-    backgroundColor: '#334155',
+    backgroundColor: '#1e3a5f',
     borderRadius: '2px',
     overflow: 'hidden',
   },
@@ -268,7 +268,7 @@ const styles = {
     fontWeight: '600',
   },
   submitBtn: {
-    backgroundColor: '#6366f1',
+    backgroundColor: '#10b981', // Vibrant Emerald button
     color: '#ffffff',
     border: 'none',
     padding: '14px',
@@ -281,13 +281,13 @@ const styles = {
   footer: {
     marginTop: '24px',
     textAlign: 'center',
-    borderTop: '1px solid #334155',
+    borderTop: '1px solid #1e3a5f',
     paddingTop: '18px',
     fontSize: '14px',
     color: '#94a3b8',
   },
   link: {
-    color: '#38bdf8',
+    color: '#00f2fe',
     textDecoration: 'none',
     fontWeight: '600',
   },
