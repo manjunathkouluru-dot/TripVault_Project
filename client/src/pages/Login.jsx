@@ -3,11 +3,32 @@ import axios from 'axios';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function Login() {
-  const [formData, setFormData] = useState({ email: '', password: '' });
+  const [formData, setFormData] = useState({
+    email: 'manjunatha@example.com',
+    password: 'password123',
+  });
   const [showPassword, setShowPassword] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const navigate = useNavigate();
+
+  const handleQuickLogin = async () => {
+    setFormData({ email: 'manjunatha@example.com', password: 'password123' });
+    setError('');
+    setLoading(true);
+    try {
+      const res = await axios.post('http://localhost:5000/api/auth/login', {
+        email: 'manjunatha@example.com',
+        password: 'password123',
+      });
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('user', JSON.stringify(res.data.user));
+      navigate('/dashboard');
+    } catch (err) {
+      setLoading(false);
+      setError(err.response?.data?.message || 'Login failed.');
+    }
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -54,7 +75,7 @@ export default function Login() {
             <label style={styles.label}>Email Address</label>
             <input
               type="email"
-              placeholder="name@example.com"
+              placeholder="manjunatha@example.com"
               required
               value={formData.email}
               onChange={(e) => setFormData({ ...formData, email: e.target.value })}
@@ -92,7 +113,25 @@ export default function Login() {
               cursor: loading ? 'not-allowed' : 'pointer'
             }}
           >
-            {loading ? 'Logging in...' : 'Sign In to Vault →'}
+            {loading ? 'Logging in...' : 'Sign In as Manjunatha K →'}
+          </button>
+
+          <button
+            type="button"
+            onClick={handleQuickLogin}
+            style={{
+              backgroundColor: '#1e3a5f',
+              color: '#00f2fe',
+              border: '1px solid #00f2fe',
+              padding: '10px',
+              borderRadius: '8px',
+              fontWeight: 'bold',
+              fontSize: '14px',
+              cursor: 'pointer',
+              marginTop: '8px',
+            }}
+          >
+            ⚡ Quick Demo Login (Manjunatha K)
           </button>
         </form>
 
