@@ -1,7 +1,8 @@
 const express = require('express');
 const router = express.Router();
 const Trip = require('../models/Trip');
-const auth = require('../middleware/auth'); // Your JWT auth middleware
+// If your file is named authMiddleware.js:
+const auth = require('../middleware/authMiddleware'); // Your JWT auth middleware
 
 // @route   POST /api/trips
 // @desc    Create a new trip (Authenticated user only)

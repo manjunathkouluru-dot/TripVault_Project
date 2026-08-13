@@ -1,29 +1,75 @@
 import { useState } from 'react';
 
 export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
-  // Initialize state directly from initialData (No useEffect required)
-  const [formData, setFormData] = useState({
+  // Use lazy state initialization to directly set initial values on mount
+  const [formData, setFormData] = useState(() => ({
     title: initialData?.title || '',
     destination: initialData?.destination || '',
     startDate: initialData?.startDate ? initialData.startDate.split('T')[0] : '',
     endDate: initialData?.endDate ? initialData.endDate.split('T')[0] : '',
     description: initialData?.description || '',
     rating: initialData?.rating || 5,
-  });
+  }));
+
+  // Sync state when initialData or isOpen changes using React's render pattern
+  const [prevData, setPrevData] = useState({ initialData, isOpen });
+  if (prevData.initialData !== initialData || prevData.isOpen !== isOpen) {
+    setPrevData({ initialData, isOpen });
+    setFormData({
+      title: initialData?.title || '',
+      destination: initialData?.destination || '',
+      startDate: initialData?.startDate ? initialData.startDate.split('T')[0] : '',
+      endDate: initialData?.endDate ? initialData.endDate.split('T')[0] : '',
+      description: initialData?.description || '',
+      rating: initialData?.rating || 5,
+    });
+  }
+
+  const [locationError, setLocationError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
 
   if (!isOpen) return null;
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    onSubmit(formData);
+    setLocationError('');
+    setIsValidating(true);
+
+    try {
+      // Check destination against OpenStreetMap API
+      const res = await fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
+          formData.destination
+        )}`
+      );
+      const data = await res.json();
+
+      if (!data || data.length === 0) {
+        setLocationError('⚠️ Invalid location! This place is not marked on the map.');
+        setIsValidating(false);
+        return; // Prevent form submission
+      }
+
+      // Valid location -> proceed to submission
+      onSubmit(formData);
+    } catch {
+      // Fallback if network issue
+      onSubmit(formData);
+    } finally {
+      setIsValidating(false);
+    }
   };
 
   return (
     <div style={styles.overlay}>
       <div style={styles.modalCard}>
         <div style={styles.header}>
-          <h2 style={styles.title}>{initialData ? '✏️ Edit Trip' : '✈️ Add New Trip'}</h2>
-          <button type="button" onClick={onClose} style={styles.closeBtn}>✕</button>
+          <h2 style={styles.title}>
+            {initialData ? '✏️ Edit Trip' : '✈️ Add New Trip'}
+          </h2>
+          <button type="button" onClick={onClose} style={styles.closeBtn}>
+            ✕
+          </button>
         </div>
 
         <form onSubmit={handleSubmit} style={styles.form}>
@@ -34,7 +80,9 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               required
               placeholder="e.g., Summer in Bali"
               value={formData.title}
-              onChange={(e) => setFormData((prev) => ({ ...prev, title: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, title: e.target.value }))
+              }
               style={styles.input}
             />
           </div>
@@ -46,9 +94,18 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               required
               placeholder="e.g., Denpasar, Indonesia"
               value={formData.destination}
-              onChange={(e) => setFormData((prev) => ({ ...prev, destination: e.target.value }))}
-              style={styles.input}
+              onChange={(e) => {
+                setLocationError('');
+                setFormData((prev) => ({ ...prev, destination: e.target.value }));
+              }}
+              style={{
+                ...styles.input,
+                borderColor: locationError ? '#f43f5e' : '#1e3a5f',
+              }}
             />
+            {locationError && (
+              <span style={styles.errorText}>{locationError}</span>
+            )}
           </div>
 
           <div style={styles.row}>
@@ -57,7 +114,9 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               <input
                 type="date"
                 value={formData.startDate}
-                onChange={(e) => setFormData((prev) => ({ ...prev, startDate: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, startDate: e.target.value }))
+                }
                 style={styles.input}
               />
             </div>
@@ -66,7 +125,9 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               <input
                 type="date"
                 value={formData.endDate}
-                onChange={(e) => setFormData((prev) => ({ ...prev, endDate: e.target.value }))}
+                onChange={(e) =>
+                  setFormData((prev) => ({ ...prev, endDate: e.target.value }))
+                }
                 style={styles.input}
               />
             </div>
@@ -76,7 +137,9 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
             <label style={styles.label}>Rating (1 - 5)</label>
             <select
               value={formData.rating}
-              onChange={(e) => setFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, rating: Number(e.target.value) }))
+              }
               style={styles.input}
             >
               <option value={5}>⭐⭐⭐⭐⭐ (5/5)</option>
@@ -93,7 +156,9 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
               rows="3"
               placeholder="Write down notes, itinerary highlights, or favorite memories..."
               value={formData.description}
-              onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
+              onChange={(e) =>
+                setFormData((prev) => ({ ...prev, description: e.target.value }))
+              }
               style={{ ...styles.input, resize: 'vertical' }}
             />
           </div>
@@ -102,8 +167,20 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
             <button type="button" onClick={onClose} style={styles.cancelBtn}>
               Cancel
             </button>
-            <button type="submit" style={styles.submitBtn}>
-              {initialData ? 'Save Changes' : 'Create Trip'}
+            <button
+              type="submit"
+              disabled={isValidating}
+              style={{
+                ...styles.submitBtn,
+                opacity: isValidating ? 0.7 : 1,
+                cursor: isValidating ? 'not-allowed' : 'pointer',
+              }}
+            >
+              {isValidating
+                ? 'Verifying Location...'
+                : initialData
+                ? 'Save Changes'
+                : 'Create Trip'}
             </button>
           </div>
         </form>
@@ -182,6 +259,12 @@ const styles = {
     fontSize: '14px',
     boxSizing: 'border-box',
     outline: 'none',
+  },
+  errorText: {
+    color: '#fb7185',
+    fontSize: '12px',
+    marginTop: '2px',
+    fontWeight: '500',
   },
   buttonGroup: {
     display: 'flex',
