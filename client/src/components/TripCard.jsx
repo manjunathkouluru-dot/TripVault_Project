@@ -1,6 +1,7 @@
-
-
 export default function TripCard({ trip, onEdit, onDelete }) {
+  // Default fallback image if trip.coverImage is missing or empty
+  const defaultImage = 'https://images.unsplash.com/photo-1488646953014-85cb44e25828?w=500&auto=format&fit=crop';
+
   const formatDate = (dateString) => {
     if (!dateString) return 'N/A';
     return new Date(dateString).toLocaleDateString('en-US', {
@@ -17,29 +18,57 @@ export default function TripCard({ trip, onEdit, onDelete }) {
 
   return (
     <div style={styles.card}>
-      <div style={styles.cardHeader}>
-        <div>
-          <h3 style={styles.title}>{trip.title}</h3>
-          <p style={styles.destination}>📍 {trip.destination}</p>
+      {/* 1. Cover Image Header with Fallback */}
+      <div style={styles.imageContainer}>
+        <img 
+          src={trip.coverImage || defaultImage} 
+          alt={trip.title || 'Trip Cover'} 
+          style={styles.coverImage}
+        />
+      </div>
+
+      <div style={styles.cardContent}>
+        <div style={styles.cardHeader}>
+          <div>
+            <h3 style={styles.title}>{trip.title}</h3>
+            <p style={styles.destination}>📍 {trip.destination}</p>
+          </div>
+          <span style={styles.rating}>{renderStars(trip.rating)}</span>
         </div>
-        <span style={styles.rating}>{renderStars(trip.rating)}</span>
-      </div>
 
-      <div style={styles.dateBadge}>
-        🗓️ {formatDate(trip.startDate)} — {formatDate(trip.endDate)}
-      </div>
+        <div style={styles.dateBadge}>
+          🗓️ {formatDate(trip.startDate)} — {formatDate(trip.endDate)}
+        </div>
 
-      {trip.description && (
-        <p style={styles.description}>{trip.description}</p>
-      )}
+        {trip.description && (
+          <p style={styles.description}>{trip.description}</p>
+        )}
 
-      <div style={styles.actionRow}>
-        <button onClick={() => onEdit(trip)} style={styles.editBtn}>
-          ✏️ Edit
-        </button>
-        <button onClick={() => onDelete(trip._id)} style={styles.deleteBtn}>
-          🗑️ Delete
-        </button>
+        {/* 2. Photo Gallery Grid (renders if trip.photos has items) */}
+        {trip.photos && trip.photos.length > 0 && (
+          <div style={styles.galleryContainer}>
+            <p style={styles.galleryTitle}>📸 Photo Gallery</p>
+            <div style={styles.photoGrid}>
+              {trip.photos.map((photoUrl, index) => (
+                <img 
+                  key={index} 
+                  src={photoUrl} 
+                  alt={`Trip photo ${index + 1}`} 
+                  style={styles.gridPhoto} 
+                />
+              ))}
+            </div>
+          </div>
+        )}
+
+        <div style={styles.actionRow}>
+          <button onClick={() => onEdit(trip)} style={styles.editBtn}>
+            ✏️ Edit
+          </button>
+          <button onClick={() => onDelete(trip._id)} style={styles.deleteBtn}>
+            🗑️ Delete
+          </button>
+        </div>
       </div>
     </div>
   );
@@ -50,12 +79,28 @@ const styles = {
     backgroundColor: '#152238',
     border: '1px solid #1e3a5f',
     borderRadius: '12px',
+    overflow: 'hidden', // Ensures image fits neatly inside card corners
+    display: 'flex',
+    flexDirection: 'column',
+    justify: 'space-between',
+    boxShadow: '0 10px 20px -5px rgba(0, 0, 0, 0.4)',
+    transition: 'transform 0.2s ease',
+  },
+  imageContainer: {
+    width: '100%',
+    height: '180px',
+    backgroundColor: '#0a1120',
+  },
+  coverImage: {
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+  },
+  cardContent: {
     padding: '20px',
     display: 'flex',
     flexDirection: 'column',
-    justifyContent: 'space-between',
-    boxShadow: '0 10px 20px -5px rgba(0, 0, 0, 0.4)',
-    transition: 'transform 0.2s ease',
+    flexGrow: 1,
   },
   cardHeader: {
     display: 'flex',
@@ -91,7 +136,29 @@ const styles = {
     color: '#cbd5e1',
     fontSize: '14px',
     lineHeight: '1.4',
-    marginBottom: '20px',
+    marginBottom: '16px',
+  },
+  galleryContainer: {
+    marginBottom: '16px',
+  },
+  galleryTitle: {
+    color: '#94a3b8',
+    fontSize: '12px',
+    fontWeight: 'bold',
+    textTransform: 'uppercase',
+    marginBottom: '8px',
+  },
+  photoGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fill, minmax(60px, 1fr))',
+    gap: '8px',
+  },
+  gridPhoto: {
+    width: '100%',
+    height: '60px',
+    borderRadius: '6px',
+    objectFit: 'cover',
+    border: '1px solid #1e3a5f',
   },
   actionRow: {
     display: 'flex',

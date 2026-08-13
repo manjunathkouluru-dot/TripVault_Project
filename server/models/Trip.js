@@ -23,6 +23,15 @@ const tripSchema = new mongoose.Schema({
     min: 1, 
     max: 5 
   },
+  // --- ADDED NEW FIELDS HERE ---
+  coverImage: { 
+    type: String, 
+    default: '' 
+  }, // Main card photo (Cloudinary URL string)
+  photos: [
+    { type: String }
+  ],  // Array of extra Cloudinary URL strings
+  // -----------------------------
   user: { 
     type: mongoose.Schema.Types.ObjectId, 
     ref: 'User', 

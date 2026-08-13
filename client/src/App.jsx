@@ -1,16 +1,22 @@
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Register from './pages/Register';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
+import PublicProfilePage from './pages/PublicProfilePage';
 import ProtectedRoute from './components/ProtectedRoute';
 
 function App() {
   return (
-    <Router>
+    <BrowserRouter>
       <Routes>
+        {/* Redirect root URL to /login */}
         <Route path="/" element={<Navigate to="/login" replace />} />
-        <Route path="/register" element={<Register />} />
+        
+        {/* Public Authentication Routes */}
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register />} />
+
+        {/* Protected Dashboard */}
         <Route 
           path="/dashboard" 
           element={
@@ -19,8 +25,13 @@ function App() {
             </ProtectedRoute>
           } 
         />
+
+        {/* Public Profile - No Auth Required */}
+        <Route path="/profile/:username" element={<PublicProfilePage />} />
+        <Route path="/profile" element={<Navigate to="/dashboard" replace />} />
+<Route path="/profile/:username" element={<PublicProfilePage />} />
       </Routes>
-    </Router>
+    </BrowserRouter>
   );
 }
 
