@@ -11,6 +11,11 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
     rating: initialData?.rating || 5,
   }));
 
+  const [locationError, setLocationError] = useState('');
+  const [isValidating, setIsValidating] = useState(false);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(initialData?.coverImage || '');
+
   // Sync state when initialData or isOpen changes using React's render pattern
   const [prevData, setPrevData] = useState({ initialData, isOpen });
   if (prevData.initialData !== initialData || prevData.isOpen !== isOpen) {
@@ -23,15 +28,11 @@ export default function TripModal({ isOpen, onClose, onSubmit, initialData }) {
       description: initialData?.description || '',
       rating: initialData?.rating || 5,
     });
+    setImageFile(null);
+    setImagePreview(initialData?.coverImage || '');
   }
 
-  const [locationError, setLocationError] = useState('');
-  const [isValidating, setIsValidating] = useState(false);
-
   if (!isOpen) return null;
-
-  const [imageFile, setImageFile] = useState(null);
-  const [imagePreview, setImagePreview] = useState(initialData?.coverImage || '');
 
   const handleImageChange = (e) => {
     const file = e.target.files[0];

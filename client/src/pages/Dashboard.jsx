@@ -48,27 +48,6 @@ export default function Dashboard() {
     };
   }, []);
 
-  // Fetch logged-in user profile details (to sync bio & username)
-  useEffect(() => {
-    const fetchUserData = async () => {
-      try {
-        const res = await axios.get('http://localhost:5000/api/auth/me', getAuthConfig());
-        const fetchedUser = res.data.user || res.data;
-        setUser((prev) => ({
-          ...prev,
-          username: fetchedUser.username || prev?.username,
-          fullName: fetchedUser.fullName || fetchedUser.name || prev?.fullName,
-          bio: fetchedUser.bio || '',
-        }));
-        setBio(fetchedUser.bio || '');
-      } catch (err) {
-        console.error('Failed to fetch user bio:', err);
-      }
-    };
-
-    fetchUserData();
-  }, [getAuthConfig]);
-
   // Reusable refetch function for Trips
   const fetchTrips = useCallback(async () => {
     try {
@@ -78,43 +57,52 @@ export default function Dashboard() {
     } catch (err) {
       console.error('Failed to fetch trips:', err);
       setError('Could not load trips. Please check backend connection.');
-    } finally {
-      setLoading(false);
     }
   }, [getAuthConfig]);
 
-  // Handle Authentication Redirect & Initial Data Fetching
+  // Combined Initial Fetching & Token Verification
   useEffect(() => {
-    if (!user) {
+    const token = localStorage.getItem('token');
+    if (!token) {
       navigate('/login');
       return;
     }
 
-    let isSubscribed = true;
+    let isMounted = true;
+    setLoading(true);
 
-    axios.get('http://localhost:5000/api/trips', getAuthConfig())
-      .then((res) => {
-        if (isSubscribed) {
-          setTrips(res.data);
-          setError('');
-        }
-      })
-      .catch((err) => {
-        if (isSubscribed) {
-          console.error('Failed to fetch trips:', err);
-          setError('Could not load trips. Please check backend connection.');
-        }
-      })
-      .finally(() => {
-        if (isSubscribed) {
-          setLoading(false);
-        }
-      });
+    Promise.allSettled([
+      axios.get('http://localhost:5000/api/auth/me', getAuthConfig()),
+      axios.get('http://localhost:5000/api/trips', getAuthConfig()),
+    ]).then(([userRes, tripsRes]) => {
+      if (!isMounted) return;
+
+      if (userRes.status === 'fulfilled') {
+        const fetchedUser = userRes.value.data.user || userRes.value.data;
+        setUser({
+          fullName: fetchedUser.name || fetchedUser.fullName || fetchedUser.username || 'Traveler',
+          username: fetchedUser.username || '',
+          email: fetchedUser.email || '',
+          bio: fetchedUser.bio || '',
+        });
+        setBio(fetchedUser.bio || '');
+      }
+
+      if (tripsRes.status === 'fulfilled') {
+        setTrips(tripsRes.value.data);
+        setError('');
+      } else {
+        console.error('Failed to fetch trips:', tripsRes.reason);
+        setError('Could not load trips. Please check backend connection.');
+      }
+
+      setLoading(false);
+    });
 
     return () => {
-      isSubscribed = false;
+      isMounted = false;
     };
-  }, [user, navigate, getAuthConfig]);
+  }, [navigate, getAuthConfig]);
 
   // UPDATE BIO (PUT /api/users/profile)
   const handleUpdateBio = async (e) => {
@@ -211,8 +199,6 @@ export default function Dashboard() {
     localStorage.removeItem('user');
     navigate('/login');
   };
-
-  if (!user) return null;
 
   return (
     <div style={styles.pageContainer}>
