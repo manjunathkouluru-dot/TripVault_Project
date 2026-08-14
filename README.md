@@ -10,7 +10,7 @@
 
 ## 🚀 Live Demos
 
-* **Frontend App (Vercel)**:TripVault Server running on port 5000
+* **Frontend App (Vercel)**: TripVault Server run on port 5000
 * **Backend API (Render)**: http://localhost:5173/
 
 ---
