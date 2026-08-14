@@ -10,8 +10,8 @@
 
 ## 🚀 Live Demos
 
-* **Frontend App (Vercel)**: [https://tripvault.vercel.app](https://tripvault.vercel.app) *(Replace with your live Vercel URL)*
-* **Backend API (Render)**: [https://tripvault-api.onrender.com](https://tripvault-api.onrender.com) *(Replace with your live Render URL)*
+* **Frontend App (Vercel)**:TripVault Server running on port 5000
+* **Backend API (Render)**: http://localhost:5173/
 
 ---
 
@@ -105,7 +105,8 @@ CLOUDINARY_API_SECRET=your_api_secret
 
 Start backend development server:
 ```powershell
-PS C:\Users\Manjunatha K\Codegenproject\server> npm run dev
+PS C:\Users\Manjunatha K\Codegenproject\server> npm start
+
 ```
 *(Backend runs on `http://localhost:5000`)*
 
@@ -113,7 +114,7 @@ PS C:\Users\Manjunatha K\Codegenproject\server> npm run dev
 Open a new VS Code terminal tab:
 ```powershell
 PS C:\Users\Manjunatha K\Codegenproject> cd client
-PS C:\Users\Manjunatha K\Codegenproject\client> npm install
+PS C:\Users\Manjunatha K\Codegenproject\client> npm run dev
 ```
 
 Create a `.env` file in the `client` directory using `.env.example`:
